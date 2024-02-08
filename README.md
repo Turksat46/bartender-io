@@ -20,11 +20,3 @@
 **Bartender.io is the perfect app for anyone who loves going to bars. With the app you can enjoy your evening relaxed and without stress.**
 
 **Download Bartender.io now in the Play Store!**
-
-**Here are some additional details you can include in the app description:**
-
-* The app is available for Android devices from version 12.0.
-* The app is available for free in the Play Store.
-* The app is regularly updated with new features and improvements.
-
-**I hope this app description helps you.
