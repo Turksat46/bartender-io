@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "913917671128",
+    "firebase_url": "https://bartenderio-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "bartenderio",
+    "storage_bucket": "bartenderio.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:913917671128:android:9fd2cd15ce4a3619b849ad",
+        "android_client_info": {
+          "package_name": "com.turksat46.bartender"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "913917671128-1cik1f072hab1br8vlsbvs4ialos8fd9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.turksat46.bartender",
+            "certificate_hash": "1b374a9d01a5fb072248c47804b1745423bb573a"
+          }
+        },
+        {
+          "client_id": "913917671128-3ovum1i7k6b55d50mudgvvptd97rqkqn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC1WJ3jKAfrOZQ050n8UIhecKL5Bj_n-8U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "913917671128-3ovum1i7k6b55d50mudgvvptd97rqkqn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

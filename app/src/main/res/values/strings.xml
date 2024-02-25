@@ -1,0 +1,53 @@
+<resources>
+    <string name="app_name">Bartender.io</string>
+    <string name="currentlocationstring">Sie befinden sich in:</string>
+    <string name="testbar">Loading...</string>
+    <string name="currentodertext">Tischbestellungen:</string>
+    <string name="currentordertext">Ihre Bestellung:</string>
+    <string name="items">Artikel:</string>
+    <string name="orderbutton">BESTELLEN</string>
+    <string name="confirmorder">Bestellung abschließen</string>
+    <string name="scannfctag">Halten Sie bitte Ihr Smartphone auf den Tag</string>
+    <string name="scannfchint">Nach erfolgreichem Scan werden Sie gebeten, zu zahlen.</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="nolocationinfo">Die App hat nicht erkannt, dass Sie in einer Bar sind.</string>
+    <string name="selectbartext">Bitte wählen Sie eine Bar:</string>
+    <string name="tischnummereingabe">Stattdessen Tischnummer eingeben</string>
+    <string name="tischnummeranfrage">Bitte geben Sie die Tischnummer ein</string>
+    <string name="friendstabletext">Freunde am Tisch</string>
+    <string name="username">Name</string>
+    <string name="save">Speichern</string>
+    <string name="send">Senden</string>
+    <string name="changebar">Ändern</string>
+    <string name="reservationtext">Oder möchten Sie stattdessen reservieren?</string>
+    <string name="selectpayment">Bezahlen mit:</string>
+    <string name="payindoors">Barzahlung (Vor-Ort)</string>
+    <string name="Paypalpayment">Paypal</string>
+    <string name="googlepayment">Google Pay</string>
+    <string name="loginsuccess">Login erfolgreich!</string>
+    <string name="loginfailed">Login fehlgeschlagen!</string>
+    <string name="loginwithserverfailed">Es konnte nicht mit dem Server kommuniziert werden!</string>
+    <string name="channel_name">Bartender.io Background Services</string>
+    <string name="channel_description">Dieser Benachrichtigungskanal informiert Sie über die aktuellen Prozesse, die im Hintergrund laufen.</string>
+
+    <string name="title_activity_login">LoginActivity</string>
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Sign in or register</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="welcome">"Welcome !"</string>
+    <string name="invalid_username">Not a valid username</string>
+    <string name="invalid_password">Password must be >5 characters</string>
+    <string name="login_failed">"Login failed"</string>
+    <string name="madewithturksat46">Made with ❤️ by Turksat46</string>
+    <string name="introduction">Genießen Sie Ihren Abend in der Bar, ohne sich vom Platz bewegen zu müssen. Mit Bartender.io können Sie ganz einfach Getränke bestellen, einen Platz reservieren und die aktuelle Belegung der Bar einsehen.</string>
+    <string name="pleaseforpermission">Bitte lesen Sie die folgenden Berechtigungsbegründungen durch und geben Sie die Berechtigungen: </string>
+    <string name="permissionlocation">Standort: Um den Standort herauszufinden und Ihnen die richtige Bar auszuwählen, brauchen wir Ihren Standort. Um Beacons zu erkennen, wird die App auch im Hintergrund nach Ihren Standort suchen.</string>
+    <string name="permissionbluetooth">Geräte in der Nähe: Die App sucht nach Geräte, die sich in einer Bar befinden, damit die App automatisch die richtige Bar auswählt.</string>
+    <string name="permissionnotification">Benachrichtigung: Die App sendet Benachrichtigungen, um eventuelle Events und mehr anzukündigen. Außerdem informiert Sie die App über wichtige technische Ereignisse, wie dass die App im Hintergrund läuft.</string>
+    <string name="acceptintroduction">Fortfahren</string>
+    <string name="searchingforbar">Es wird nach einer Bar gesucht...</string>
+    <string name="leavetable">Tisch verlassen</string>
+
+    <string name="logintext">Bitte melden Sie sich an,\n um fortzufahren</string>
+</resources>
