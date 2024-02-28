@@ -55,6 +55,7 @@ import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 import com.turksat46.bartender.adapters.barselectionadapter;
 import com.turksat46.bartender.adapters.friendsattableadapter;
+import com.turksat46.bartender.backend.BackendManager;
 
 import org.altbeacon.beacon.Beacon;
 import org.altbeacon.beacon.BeaconConsumer;
@@ -78,6 +79,8 @@ public class MainActivity extends AppCompatActivity implements com.turksat46.bar
     barselectionadapter barselectionadapter;
     friendsattableadapter friendsattableadapter;
     RecyclerView barselectionrv;
+
+    BackendManager backendManager;
 
     Boolean isinBar = false;
 
@@ -141,7 +144,14 @@ public class MainActivity extends AppCompatActivity implements com.turksat46.bar
 
         mAuth = FirebaseAuth.getInstance();
         user = mAuth.getCurrentUser();
+        backendManager = new BackendManager();
         getUser();
+        if(backendManager.checkifinBar()){
+            //User is in bar
+            selectedBarID = backendManager.getCurrentSelectedBar();
+            selectedTablenumber = Integer.valueOf(backendManager.getCurrentTableNumber());
+            Toast.makeText(this, "Nutzer sitzt bereits schon", Toast.LENGTH_LONG).show();
+        }
 
         BeaconManager beaconManager = BeaconManager.getInstanceForApplication(this);
         beaconManager.bind(this);

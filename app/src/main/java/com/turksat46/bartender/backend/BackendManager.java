@@ -22,6 +22,8 @@ public class BackendManager {
     private FirebaseAuth mAuth;
     private FirebaseUser user;
 
+    String temp;
+
     public BackendManager(){
         mAuth = FirebaseAuth.getInstance();
         user = mAuth.getCurrentUser();
@@ -171,8 +173,53 @@ public class BackendManager {
                 });
     }
 
+    public String getCurrentSelectedBar(){
+        db.collection("users").document(user.getUid()).get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if(task.isSuccessful()){
+                            DocumentSnapshot document = task.getResult();
+                            temp = document.getString("atbarid").toString();
+                        }
+
+                    }
+                });
+        return temp;
+    }
+
+    public String getCurrentTableNumber(){
+        db.collection("users").document(user.getUid()).get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if(task.isSuccessful()){
+                            DocumentSnapshot document = task.getResult();
+                            temp = document.getString("attableid").toString();
+                        }
+
+                    }
+                });
+        return temp;
+    }
+
     public boolean checkifinBar(){
-        return false;
+        db.collection("users").document(user.getUid()).get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if(task.isSuccessful()){
+                            DocumentSnapshot document = task.getResult();
+                            temp = document.getString("atbarid").toString();
+                        }
+
+                    }
+                });
+        if(temp == ""){
+            return false;
+        }else{
+            return true;
+        }
     }
 
     public boolean checkIfLeavingAvailable(){
