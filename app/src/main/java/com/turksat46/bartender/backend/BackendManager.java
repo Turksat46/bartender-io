@@ -185,6 +185,7 @@ public class BackendManager {
 
                     }
                 });
+        Log.e("getCurrentSelectedBar()", "temp = "+temp);
         return temp;
     }
 
@@ -195,31 +196,36 @@ public class BackendManager {
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         if(task.isSuccessful()){
                             DocumentSnapshot document = task.getResult();
-                            temp = document.getString("attableid").toString();
+                            temp = document.getString("attableid");
                         }
 
                     }
                 });
+        Log.e("getCurrentTableNumber", "temp = "+temp);
         return temp;
     }
-
+    Boolean yee = false;
     public boolean checkifinBar(){
+
         db.collection("users").document(user.getUid()).get()
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         if(task.isSuccessful()){
                             DocumentSnapshot document = task.getResult();
-                            temp = document.getString("atbarid").toString();
-                        }
 
+                            temp = document.getString("atbarid").toString();
+
+                            if(document.getString("atbarid").isEmpty()){
+                                yee = false;
+                            }else{
+                                yee = true;
+                            }
+                        }
                     }
                 });
-        if(temp == ""){
-            return false;
-        }else{
-            return true;
-        }
+        Log.e("checkIfInBar", String.valueOf(yee));
+    return yee;
     }
 
     public boolean checkIfLeavingAvailable(){

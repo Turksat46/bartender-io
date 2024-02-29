@@ -19,13 +19,16 @@
         android:theme="@style/Theme.Bartender"
         tools:targetApi="31">
         <activity
-            android:name=".firstTime"
-            android:noHistory = "true"
+            android:name=".reservation"
             android:exported="false" />
         <activity
+            android:name=".firstTime"
+            android:exported="false"
+            android:noHistory="true" />
+        <activity
             android:name=".Splashscreen"
-            android:noHistory = "true"
-            android:exported="true">
+            android:exported="true"
+            android:noHistory="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -34,12 +37,12 @@
         </activity>
         <activity
             android:name=".profile"
-            android:exported="false" />
-
+            android:exported="false"
+            android:noHistory="true"/>
         <activity
             android:name=".LoginActivity"
-            android:noHistory = "true"
-            android:exported="false" />
+            android:exported="false"
+            android:noHistory="true" />
         <activity
             android:name=".Bar"
             android:exported="false" />
@@ -54,8 +57,8 @@
             android:name=".MainActivity"
             android:exported="false"
             android:launchMode="singleInstance"
-            android:noHistory = "false"
-            android:screenOrientation="portrait"></activity>
+            android:noHistory="false"
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>

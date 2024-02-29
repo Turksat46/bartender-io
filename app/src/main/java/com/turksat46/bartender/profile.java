@@ -48,6 +48,7 @@ public class profile extends AppCompatActivity {
 
     EditText editname;
     Button savenamebutton;
+    Button signoutbutton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,7 +60,30 @@ public class profile extends AppCompatActivity {
         }
 
         mAuth = FirebaseAuth.getInstance();
+        mAuth.addAuthStateListener(new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                if (firebaseAuth.getCurrentUser() == null){
+                    //Do anything here which needs to be done after signout is complete
+                    Toast.makeText(profile.this, "Nutzer erfolgreich abgemeldet!", Toast.LENGTH_LONG).show();
+                    Intent intent = new Intent(profile.this, LoginActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
+                else {
+                }
+            }
+        });
         user = mAuth.getCurrentUser();
+
+
+        signoutbutton = (Button)findViewById(R.id.signoutbutton);
+        signoutbutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                signout();
+            }
+        });
 
         profilennametextview = (TextView)findViewById(R.id.profilenametextview);
         db.collection("users").document(user.getUid()).get()
@@ -147,6 +171,11 @@ public class profile extends AppCompatActivity {
 
             }
         });
+    }
+
+    private void signout() {
+        mAuth.signOut();
+
     }
 
     private void setProfilePicture() {

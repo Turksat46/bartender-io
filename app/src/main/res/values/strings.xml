@@ -49,5 +49,8 @@
     <string name="searchingforbar">Es wird nach einer Bar gesucht...</string>
     <string name="leavetable">Tisch verlassen</string>
 
+    <string name="signout">Abmelden</string>
+    <string name="checkForReservation">Reservieren</string>
+
     <string name="logintext">Bitte melden Sie sich an,\n um fortzufahren</string>
 </resources>

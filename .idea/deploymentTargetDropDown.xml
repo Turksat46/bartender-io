@@ -4,7 +4,7 @@
     <value>
       <entry key="app">
         <State>
-          <targetsSelectedWithDialog>
+          <targetSelectedWithDropDown>
             <Target>
               <type value="QUICK_BOOT_TARGET" />
               <deviceKey>
@@ -14,7 +14,8 @@
                 </Key>
               </deviceKey>
             </Target>
-          </targetsSelectedWithDialog>
+          </targetSelectedWithDropDown>
+          <timeTargetWasSelectedWithDropDown value="2024-02-28T13:05:30.471958800Z" />
         </State>
       </entry>
     </value>
