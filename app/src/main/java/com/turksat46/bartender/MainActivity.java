@@ -17,15 +17,22 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.nfc.NdefMessage;
+import android.nfc.NdefRecord;
+import android.nfc.NfcAdapter;
+import android.nfc.Tag;
+import android.nfc.tech.Ndef;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -51,6 +58,7 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.squareup.picasso.Picasso;
@@ -72,7 +80,9 @@ import org.w3c.dom.Text;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -125,6 +135,8 @@ public class MainActivity extends AppCompatActivity implements com.turksat46.bar
     private FirebaseUser user;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
 
+    NfcAdapter nfcAdapter;
+    public static final String MIME_TEXT_PLAIN = "text/plain";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -134,9 +146,10 @@ public class MainActivity extends AppCompatActivity implements com.turksat46.bar
         if (getSupportActionBar() != null) {
             getSupportActionBar().hide();
         }
+
+        nfcAdapter = NfcAdapter.getDefaultAdapter(this);
+
         profileimgview = (CircleImageView)findViewById(R.id.profileroundimageview);
-
-
         typeablenumberlayout = (ConstraintLayout)findViewById(R.id.typeablenumberlayout);
         friendsattableCard = (CardView)findViewById(R.id.currentusersontablecard);
         scannfclayout = (ConstraintLayout)findViewById(R.id.scannfcconstrainlayout);
@@ -203,6 +216,14 @@ public class MainActivity extends AppCompatActivity implements com.turksat46.bar
             }
         });
 
+        orderButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, ordering.class);
+                startActivity(intent);
+            }
+        });
+
         mAuth = FirebaseAuth.getInstance();
         user = mAuth.getCurrentUser();
 
@@ -226,7 +247,143 @@ public class MainActivity extends AppCompatActivity implements com.turksat46.bar
                         }
                     }
                 });
+
+        handleIntent(getIntent());
+
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        setupForegroundDispatch(this, nfcAdapter);
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        handleIntent(intent);
+    }
+
+    private void setupForegroundDispatch(Activity activity, NfcAdapter adapter) {
+        final Intent intent = new Intent(activity.getApplicationContext(), activity.getClass());
+        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
+        final PendingIntent pendingIntent = PendingIntent.getActivity(activity.getApplicationContext(), 0, intent, PendingIntent.FLAG_MUTABLE);
+
+        IntentFilter[] filters = new IntentFilter[1];
+        String[][] techList = new String[][]{};
+
+        // Notice that this is the same filter as in our manifest.
+        filters[0] = new IntentFilter();
+        filters[0].addAction(NfcAdapter.ACTION_NDEF_DISCOVERED);
+        filters[0].addCategory(Intent.CATEGORY_DEFAULT);
+        try {
+            filters[0].addDataType(MIME_TEXT_PLAIN);
+        } catch (IntentFilter.MalformedMimeTypeException e) {
+            throw new RuntimeException("Check your mime type.");
+        }
+
+        adapter.enableForegroundDispatch(activity, pendingIntent, filters, techList);
+    }
+
+    private void handleIntent(Intent intent) {
+        Log.e("handleIntent", "Intent called");
+        String action = intent.getAction();
+        String type = intent.getType();
+        Log.e("handleIntent", "Type: " + type);
+        if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(action)) {
+            Log.e("NFC", "Tag is ndef!");
+
+            if (MIME_TEXT_PLAIN.equals(type)) {
+                Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+                try {
+                    String uuid = new NdefReaderTask().execute(tag).get();
+                    Log.e("UUID", uuid);
+                    if(selectedBarID == null){
+                        getTableWithUUID(uuid);
+                    }else{
+                        handleUUIDfromNFC(uuid);
+                    }
+
+                } catch (ExecutionException e) {
+                    throw new RuntimeException(e);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+
+            } else {
+                Log.d("NFC", "Wrong mime type: " + type);
+            }
+        } else if (NfcAdapter.ACTION_TECH_DISCOVERED.equals(action)) {
+            Log.e("NFC", "Tag is not ndef!");
+            // In case we would still use the Tech Discovered Intent
+            Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+            String[] techList = tag.getTechList();
+            String searchedTech = Ndef.class.getName();
+
+            for (String tech : techList) {
+                if (searchedTech.equals(tech)) {
+                    new NdefReaderTask().execute(tag);
+                    break;
+                }
+            }
+        }
+    }
+
+    private void handleUUIDfromNFC(String uuid) {
+        db.collection("tables").document(selectedBarID).get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if(task.isSuccessful()){
+                            DocumentSnapshot document = task.getResult();
+                            Object uuids = document.get("uuids");
+                            ArrayList<String> list = (ArrayList<String>) uuids;
+                            int index = list.indexOf(uuid)+1;
+                            setTableFromNFC(selectedBarID, index);
+                        }
+                    }
+                });
+    }
+
+    private void getTableWithUUID(String uuid) {
+        CollectionReference collectionRef = db.collection("tables");
+        Query query = collectionRef.whereArrayContains("uuids", uuid);
+        query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    // Erfolgsfall
+                    QuerySnapshot snapshot = task.getResult();
+
+                    // Durchlaufen aller Dokumente in der Abfrage
+                    for (DocumentSnapshot document : snapshot.getDocuments()) {
+                        // Zugriff auf das Array "uuids" des aktuellen Dokuments
+                        String documentId = document.getId();
+                        Object uuids = document.get("uuids");
+                        ArrayList<String> list = (ArrayList<String>) uuids;
+                        // Index des Werts "uuid" im Array "uuids" ermitteln
+                        int index = list.indexOf(uuid)+1;
+                        Log.e("getTableWithUUID", String.valueOf(index));
+
+                        setTableFromNFC(documentId, index);
+
+                    }
+                } else {
+                    // Fehlerfall
+                    Log.e("Firestore", "Fehler beim Abrufen der Dokumente", task.getException());
+                }
+            }
+        });
+    }
+
+    private void setTableFromNFC(String documentId, int index) {
+        selectedBarID = documentId;
+        selectedTablenumber = index;
+        setUItoTableView(true);
+        enterTable(index);
+    }
+
 
     private void checkValidTableInput() {
         //TODO: check if table number is valid
@@ -531,7 +688,7 @@ public class MainActivity extends AppCompatActivity implements com.turksat46.bar
             currentOrderCard.setVisibility(View.VISIBLE);
             selectTableCard.setVisibility(View.GONE);
             reservationCard.setVisibility(View.GONE);
-            switchTableNumberCard();
+            switchTableNumberCard(true);
         }else{
             updateBartextViewInfo();
             noLocationLayout.setVisibility(View.GONE);
@@ -540,13 +697,13 @@ public class MainActivity extends AppCompatActivity implements com.turksat46.bar
             currentOrderCard.setVisibility(View.GONE);
             selectTableCard.setVisibility(View.VISIBLE);
             reservationCard.setVisibility(View.VISIBLE);
-            switchTableNumberCard();
+            switchTableNumberCard(false);
         }
 
     }
 
-    private void switchTableNumberCard() {
-        if(selectedTablenumber == 0){
+    private void switchTableNumberCard(Boolean b) {
+        if(b == false){
             scannfcfortableimageview.setVisibility(View.VISIBLE);
             maintablenumbertextview.setVisibility(View.GONE);
         }else{
