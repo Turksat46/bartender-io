@@ -220,6 +220,9 @@ public class MainActivity extends AppCompatActivity implements com.turksat46.bar
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, ordering.class);
+                intent.putExtra("barID", selectedBarID);
+                intent.putExtra("tableID", selectedTablenumber);
+                nfcAdapter.disableForegroundDispatch(MainActivity.this);
                 startActivity(intent);
             }
         });
