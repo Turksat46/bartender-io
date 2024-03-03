@@ -232,6 +232,7 @@ public class PaymentsUtil {
      * @param cents value of the price in cents.
      */
     public static String centsToString(long cents) {
+        //TODO: Diese Rundungen weg machen amk das klaut mir die Cents
         return new BigDecimal(cents)
                 .divide(CENTS_IN_A_UNIT, RoundingMode.HALF_EVEN)
                 .setScale(2, RoundingMode.HALF_EVEN)

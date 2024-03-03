@@ -21,18 +21,23 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.turksat46.bartender.R;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class itemsfororderadapter extends RecyclerView.Adapter<itemsfororderadapter.ViewHolder> {
 
-    private String mBarID;
     private LayoutInflater mInflater;
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-    public itemsfororderadapter(Context context, String barID){
+    List<Map<String, Object>> drinksList = new ArrayList<>();
+
+    private itemsfororderadapter.ItemClickListener mClickListener;
+
+    public itemsfororderadapter(Context context, List<Map<String, Object>> list){
         this.mInflater = LayoutInflater.from(context);
-        this.mBarID = barID;
+        drinksList = list;
     }
 
     @NonNull
@@ -44,45 +49,47 @@ public class itemsfororderadapter extends RecyclerView.Adapter<itemsfororderadap
 
     @Override
     public void onBindViewHolder(@NonNull itemsfororderadapter.ViewHolder holder, int position) {
-        // Zuerst greifen Sie auf die erste Sammlung zu
-        CollectionReference parentCollectionRef = db.collection("parentCollection");
-
-// Dann greifen Sie auf die zweite (Unter-)Sammlung zu
-        CollectionReference childCollectionRef = parentCollectionRef.document("parentDocumentId").collection("childCollection");
-        childCollectionRef.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-            @Override
-            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-
-                for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-
-                    String documentId = documentSnapshot.getId();
-                    Log.e("itemsadapter", "Bei Dokument: "+documentId);
-                    holder.itemNameTextView.setText(documentSnapshot.get("name").toString());
-                    holder.itemcostTextView.setText(documentSnapshot.get("price").toString());
-                }
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                // Behandeln Sie hier Fehler
-            }
-        });
+        Map<String, Object> json = drinksList.get(position);
+        String name = (String) json.get("name");
+        Object cost = (Object) json.get("price");
+        Object size = (Object)json.get("size");
+        holder.itemNameTextView.setText(name);
+        holder.itemcostTextView.setText(String.valueOf(cost) + " €");
+        holder.baveragesizeTextView.setText(String.valueOf(size));
     }
 
     @Override
     public int getItemCount() {
-        return 2;
+        return drinksList.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         TextView itemNameTextView;
         TextView itemcostTextView;
+        TextView baveragesizeTextView;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             itemNameTextView = itemView.findViewById(R.id.itemNameTextView);
             itemcostTextView = itemView.findViewById(R.id.itemCostTextView);
+            baveragesizeTextView = itemView.findViewById(R.id.baveragesizeTextView);
+            itemView.setOnClickListener(this);
         }
+
+        @Override
+        public void onClick(View view) {
+            if (mClickListener != null) mClickListener.onItemClick(view, getAdapterPosition());
+        }
+    }
+
+    // allows clicks events to be caught
+    public void setClickListener(itemsfororderadapter.ItemClickListener itemClickListener) {
+        this.mClickListener = itemClickListener;
+    }
+
+    // parent activity will implement this method to respond to click events
+    public interface ItemClickListener {
+        void onItemClick(View view, int position);
     }
 }

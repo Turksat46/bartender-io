@@ -24,14 +24,20 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.turksat46.bartender.adapters.currentorderadapter;
 import com.turksat46.bartender.adapters.itemsfororderadapter;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-public class ordering extends AppCompatActivity {
+public class ordering extends AppCompatActivity implements itemsfororderadapter.ItemClickListener {
 
     String selectedBarID;
     int tableNumber;
@@ -43,16 +49,24 @@ public class ordering extends AppCompatActivity {
     Button orderButton;
     Button cancelorderButton;
     TextView tableNumberTextView;
+    TextView ordertotaltextview;
 
     itemsfororderadapter orderitemsAdapter;
+    currentorderadapter currentOrderAdapter;
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     RecyclerView orderitemsrv;
+    RecyclerView currentorderrv;
 
     NfcAdapter nfcAdapter;
     public static final String MIME_TEXT_PLAIN = "text/plain";
 
+    List<Map<String, Object>> drinksList = new ArrayList<>();
+    List<Map<String, Object>> selectedList = new ArrayList<>();
+
+
+    double totalPrice = 0.0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,16 +87,14 @@ public class ordering extends AppCompatActivity {
             //TODO: Gib eine Fehlermeldung aus
         }
 
-        orderitemsrv = findViewById(R.id.itemsrecyclerView);
-        orderitemsAdapter = new itemsfororderadapter(this, "testbar");
-        orderitemsrv.setLayoutManager(new LinearLayoutManager(this));
-        orderitemsrv.setAdapter(orderitemsAdapter);
+
         tableNumberTextView = (TextView)findViewById(R.id.MaintablenumberTextView);
         tableNumberTextView.setText(String.valueOf(tableNumber));
         selectionCard = (CardView) findViewById(R.id.selectioncard);
         selectionCard.setVisibility(View.VISIBLE);
         scannfcCard = (CardView) findViewById(R.id.ordertablenumber);
         scannfcCard.setVisibility(View.GONE);
+        ordertotaltextview = (TextView)findViewById(R.id.ordertotaltextview);
         orderButton = (Button) findViewById(R.id.sendorderbutton);
         orderButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -104,6 +116,42 @@ public class ordering extends AppCompatActivity {
         });
         handleIntent(getIntent());
         setupForegroundDispatch(ordering.this, nfcAdapter);
+        getItems();
+    }
+
+    private void getItems() {
+        CollectionReference drinksRef = db.collection("items/testbar/drinks");
+        drinksRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    QuerySnapshot snapshot = task.getResult();
+                    for (DocumentSnapshot document : snapshot) {
+                        // Verarbeiten Sie jedes Dokument
+                        Log.d("Firestore", document.getData().toString());
+                        Map<String, Object> item = new HashMap<>();
+                        item.put("name", document.get("name"));
+                        item.put("price", document.get("price"));
+                        item.put("size", document.get("size"));
+                        drinksList.add(item);
+                    }
+                    //Call for drawing on rv
+                    drawonrv(drinksList);
+                } else {
+                    Log.d("Firestore", "Fehler beim Abrufen der Dokumente", task.getException());
+                }
+            }
+        });
+
+    }
+
+    private void drawonrv(List<Map<String, Object>> drinksList) {
+        orderitemsrv = findViewById(R.id.itemsrecyclerView);
+        orderitemsrv.setLayoutManager(new LinearLayoutManager(this));
+        orderitemsrv.setAdapter(orderitemsAdapter);
+        orderitemsAdapter = new itemsfororderadapter(this, drinksList);
+        orderitemsAdapter.setClickListener(this);
+        orderitemsrv.setAdapter(orderitemsAdapter);
     }
 
     private void checkOrder() {
@@ -186,7 +234,7 @@ public class ordering extends AppCompatActivity {
         Intent intent = new Intent(ordering.this, payment.class);
         intent.putExtra("barID", selectedBarID);
         intent.putExtra("tableID", tableNumber);
-
+        intent.putExtra("total", totalPrice);
         startActivity(intent);
     }
 
@@ -217,5 +265,34 @@ public class ordering extends AppCompatActivity {
         super.onBackPressed();
         nfcAdapter.disableForegroundDispatch(ordering.this);
         Toast.makeText(this, "Bestellung wurde abgebrochen", Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onItemClick(View view, int position) {
+        selectedList.add(drinksList.get(position));
+        drawselecteditems();
+        addtototalprice();
+    }
+
+    private void addtototalprice() {
+
+        for(Map<String, Object> item : selectedList) {
+            if (item.containsKey("price")) {
+                Object priceObj = item.get("price");
+                String pricetemp = String.valueOf(priceObj);
+                Double price = Double.valueOf(pricetemp);
+                totalPrice += price;
+                ordertotaltextview.setText("Gesamt: "+String.valueOf(totalPrice)+" €");
+            }
+        }
+
+        Log.e("TotalPrice", String.valueOf(totalPrice));
+    }
+
+    private void drawselecteditems() {
+        currentorderrv = findViewById(R.id.currentorderrecyclerView);
+        currentorderrv.setLayoutManager(new LinearLayoutManager(this));
+        currentOrderAdapter = new currentorderadapter(this, selectedList);
+        currentorderrv.setAdapter(currentOrderAdapter);
     }
 }

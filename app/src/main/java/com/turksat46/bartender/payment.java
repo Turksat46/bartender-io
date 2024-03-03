@@ -29,7 +29,7 @@ public class payment extends AppCompatActivity {
 
     String selectedBarID;
     int tableNumber;
-
+    Double totalCost;
 
     private CheckoutViewModel model;
 
@@ -68,6 +68,7 @@ public class payment extends AppCompatActivity {
         if(extras != null){
             selectedBarID = extras.getString("barID");
             tableNumber = extras.getInt("tableID");
+            totalCost = extras.getDouble("total");
         }
 
         googlePayButton = (Button) findViewById(R.id.googlepaymentbutton);
@@ -92,7 +93,10 @@ public class payment extends AppCompatActivity {
 
     public void requestPayment(View view) {
         // The price provided to the API should include taxes and shipping.
-        final Task<PaymentData> task = model.getLoadPaymentDataTask(1000L);
+        totalCost = totalCost*100;
+        Long temp = totalCost.longValue();
+        Log.e("Temp long", String.valueOf(temp));
+        final Task<PaymentData> task = model.getLoadPaymentDataTask(temp);
         task.addOnCompleteListener(paymentDataLauncher::launch);
     }
 
